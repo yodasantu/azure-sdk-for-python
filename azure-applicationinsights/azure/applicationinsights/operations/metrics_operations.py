@@ -34,14 +34,20 @@ class MetricsOperations(object):
         self.config = config
 
     def get(
-            self, app_id, metric_id, timespan=None, interval=None, aggregation=None, segment=None, top=None, orderby=None, filter=None, custom_headers=None, raw=False, **operation_config):
+            self, subscription_id, resource_group_name, application_name, metric_id, api_version, timespan=None, interval=None, aggregation=None, segment=None, top=None, orderby=None, filter=None, custom_headers=None, raw=False, **operation_config):
         """Retrieve metric data.
 
         Gets metric values for a single metric.
 
-        :param app_id: ID of the application. This is Application ID from the
-         API Access settings blade in the Azure portal.
-        :type app_id: str
+        :param subscription_id: Gets subscription credentials which uniquely
+         identify Microsoft Azure subscription. The subscription ID forms part
+         of the URI for every service call.
+        :type subscription_id: str
+        :param resource_group_name: The name of the resource group to get. The
+         name is case insensitive.
+        :type resource_group_name: str
+        :param application_name: Name of the Application Insights application.
+        :type application_name: str
         :param metric_id: ID of the metric. This is either a standard AI
          metric, or an application-specific custom metric. Possible values
          include: 'requests/count', 'requests/duration', 'requests/failed',
@@ -64,6 +70,8 @@ class MetricsOperations(object):
          'availabilityResults/duration', 'billing/telemetryCount',
          'customEvents/count'
         :type metric_id: str or ~azure.applicationinsights.models.MetricId
+        :param api_version: Client API version.
+        :type api_version: str
         :param timespan: The timespan over which to retrieve metric values.
          This is an ISO8601 time period value. If timespan is omitted, a
          default time range of `PT12H` ("last 12 hours") is used. The actual
@@ -116,7 +124,9 @@ class MetricsOperations(object):
         # Construct URL
         url = self.get.metadata['url']
         path_format_arguments = {
-            'appId': self._serialize.url("app_id", app_id, 'str'),
+            'subscriptionId': self._serialize.url("subscription_id", subscription_id, 'str'),
+            'resourceGroupName': self._serialize.url("resource_group_name", resource_group_name, 'str', max_length=90, min_length=1, pattern=r'^[-\w\._\(\)]+$'),
+            'applicationName': self._serialize.url("application_name", application_name, 'str'),
             'metricId': self._serialize.url("metric_id", metric_id, 'str')
         }
         url = self._client.format_url(url, **path_format_arguments)
@@ -137,6 +147,7 @@ class MetricsOperations(object):
             query_parameters['orderby'] = self._serialize.query("orderby", orderby, 'str')
         if filter is not None:
             query_parameters['filter'] = self._serialize.query("filter", filter, 'str')
+        query_parameters['apiVersion'] = self._serialize.query("api_version", api_version, 'str')
 
         # Construct headers
         header_parameters = {}
@@ -161,79 +172,25 @@ class MetricsOperations(object):
             return client_raw_response
 
         return deserialized
-    get.metadata = {'url': '/apps/{appId}/metrics/{metricId}'}
-
-    def get_multiple(
-            self, app_id, body, custom_headers=None, raw=False, **operation_config):
-        """Retrieve metric data.
-
-        Gets metric values for multiple metrics.
-
-        :param app_id: ID of the application. This is Application ID from the
-         API Access settings blade in the Azure portal.
-        :type app_id: str
-        :param body: The batched metrics query.
-        :type body:
-         list[~azure.applicationinsights.models.MetricsPostBodySchema]
-        :param dict custom_headers: headers that will be added to the request
-        :param bool raw: returns the direct response alongside the
-         deserialized response
-        :param operation_config: :ref:`Operation configuration
-         overrides<msrest:optionsforoperations>`.
-        :return: list or ClientRawResponse if raw=true
-        :rtype: list[~azure.applicationinsights.models.MetricsResultsItem] or
-         ~msrest.pipeline.ClientRawResponse
-        :raises:
-         :class:`ErrorResponseException<azure.applicationinsights.models.ErrorResponseException>`
-        """
-        # Construct URL
-        url = self.get_multiple.metadata['url']
-        path_format_arguments = {
-            'appId': self._serialize.url("app_id", app_id, 'str')
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}
-
-        # Construct headers
-        header_parameters = {}
-        header_parameters['Accept'] = 'application/json'
-        header_parameters['Content-Type'] = 'application/json; charset=utf-8'
-        if custom_headers:
-            header_parameters.update(custom_headers)
-
-        # Construct body
-        body_content = self._serialize.body(body, '[MetricsPostBodySchema]')
-
-        # Construct and send request
-        request = self._client.post(url, query_parameters, header_parameters, body_content)
-        response = self._client.send(request, stream=False, **operation_config)
-
-        if response.status_code not in [200]:
-            raise models.ErrorResponseException(self._deserialize, response)
-
-        deserialized = None
-
-        if response.status_code == 200:
-            deserialized = self._deserialize('[MetricsResultsItem]', response)
-
-        if raw:
-            client_raw_response = ClientRawResponse(deserialized, response)
-            return client_raw_response
-
-        return deserialized
-    get_multiple.metadata = {'url': '/apps/{appId}/metrics'}
+    get.metadata = {'url': '/subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/Microsoft.Insights/components/{applicationName}/metrics/{metricId}'}
 
     def get_metadata(
-            self, app_id, custom_headers=None, raw=False, **operation_config):
+            self, subscription_id, resource_group_name, application_name, api_version, custom_headers=None, raw=False, **operation_config):
         """Retrieve metric metatadata.
 
         Gets metadata describing the available metrics.
 
-        :param app_id: ID of the application. This is Application ID from the
-         API Access settings blade in the Azure portal.
-        :type app_id: str
+        :param subscription_id: Gets subscription credentials which uniquely
+         identify Microsoft Azure subscription. The subscription ID forms part
+         of the URI for every service call.
+        :type subscription_id: str
+        :param resource_group_name: The name of the resource group to get. The
+         name is case insensitive.
+        :type resource_group_name: str
+        :param application_name: Name of the Application Insights application.
+        :type application_name: str
+        :param api_version: Client API version.
+        :type api_version: str
         :param dict custom_headers: headers that will be added to the request
         :param bool raw: returns the direct response alongside the
          deserialized response
@@ -247,12 +204,15 @@ class MetricsOperations(object):
         # Construct URL
         url = self.get_metadata.metadata['url']
         path_format_arguments = {
-            'appId': self._serialize.url("app_id", app_id, 'str')
+            'subscriptionId': self._serialize.url("subscription_id", subscription_id, 'str'),
+            'resourceGroupName': self._serialize.url("resource_group_name", resource_group_name, 'str', max_length=90, min_length=1, pattern=r'^[-\w\._\(\)]+$'),
+            'applicationName': self._serialize.url("application_name", application_name, 'str')
         }
         url = self._client.format_url(url, **path_format_arguments)
 
         # Construct parameters
         query_parameters = {}
+        query_parameters['apiVersion'] = self._serialize.query("api_version", api_version, 'str')
 
         # Construct headers
         header_parameters = {}
@@ -277,4 +237,4 @@ class MetricsOperations(object):
             return client_raw_response
 
         return deserialized
-    get_metadata.metadata = {'url': '/apps/{appId}/metrics/metadata'}
+    get_metadata.metadata = {'url': '/subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/Microsoft.Insights/components/{applicationName}/metrics/metadata'}

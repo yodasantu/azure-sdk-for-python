@@ -34,20 +34,28 @@ class QueryOperations(object):
         self.config = config
 
     def execute(
-            self, app_id, body, custom_headers=None, raw=False, **operation_config):
+            self, subscription_id, resource_group_name, application_name, body, api_version, custom_headers=None, raw=False, **operation_config):
         """Execute an Analytics query.
 
         Executes an Analytics query for data.
         [Here](https://dev.applicationinsights.io/documentation/Using-the-API/Query)
         is an example for using POST with an Analytics query.
 
-        :param app_id: ID of the application. This is Application ID from the
-         API Access settings blade in the Azure portal.
-        :type app_id: str
+        :param subscription_id: Gets subscription credentials which uniquely
+         identify Microsoft Azure subscription. The subscription ID forms part
+         of the URI for every service call.
+        :type subscription_id: str
+        :param resource_group_name: The name of the resource group to get. The
+         name is case insensitive.
+        :type resource_group_name: str
+        :param application_name: Name of the Application Insights application.
+        :type application_name: str
         :param body: The Analytics query. Learn more about the [Analytics
          query
          syntax](https://azure.microsoft.com/documentation/articles/app-insights-analytics-reference/)
         :type body: ~azure.applicationinsights.models.QueryBody
+        :param api_version: Client API version.
+        :type api_version: str
         :param dict custom_headers: headers that will be added to the request
         :param bool raw: returns the direct response alongside the
          deserialized response
@@ -62,12 +70,15 @@ class QueryOperations(object):
         # Construct URL
         url = self.execute.metadata['url']
         path_format_arguments = {
-            'appId': self._serialize.url("app_id", app_id, 'str')
+            'subscriptionId': self._serialize.url("subscription_id", subscription_id, 'str'),
+            'resourceGroupName': self._serialize.url("resource_group_name", resource_group_name, 'str', max_length=90, min_length=1, pattern=r'^[-\w\._\(\)]+$'),
+            'applicationName': self._serialize.url("application_name", application_name, 'str')
         }
         url = self._client.format_url(url, **path_format_arguments)
 
         # Construct parameters
         query_parameters = {}
+        query_parameters['apiVersion'] = self._serialize.query("api_version", api_version, 'str')
 
         # Construct headers
         header_parameters = {}
@@ -96,4 +107,4 @@ class QueryOperations(object):
             return client_raw_response
 
         return deserialized
-    execute.metadata = {'url': '/apps/{appId}/query'}
+    execute.metadata = {'url': '/subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/Microsoft.Insights/components/{applicationName}/query'}

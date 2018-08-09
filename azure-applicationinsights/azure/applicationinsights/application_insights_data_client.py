@@ -12,9 +12,9 @@
 from msrest.service_client import SDKClient
 from msrest import Configuration, Serializer, Deserializer
 from .version import VERSION
+from .operations.query_operations import QueryOperations
 from .operations.metrics_operations import MetricsOperations
 from .operations.events_operations import EventsOperations
-from .operations.query_operations import QueryOperations
 from . import models
 
 
@@ -35,7 +35,7 @@ class ApplicationInsightsDataClientConfiguration(Configuration):
         if credentials is None:
             raise ValueError("Parameter 'credentials' must not be None.")
         if not base_url:
-            base_url = 'https://api.applicationinsights.io/v1'
+            base_url = 'https://management.azure.com'
 
         super(ApplicationInsightsDataClientConfiguration, self).__init__(base_url)
 
@@ -50,12 +50,12 @@ class ApplicationInsightsDataClient(SDKClient):
     :ivar config: Configuration for client.
     :vartype config: ApplicationInsightsDataClientConfiguration
 
+    :ivar query: Query operations
+    :vartype query: azure.applicationinsights.operations.QueryOperations
     :ivar metrics: Metrics operations
     :vartype metrics: azure.applicationinsights.operations.MetricsOperations
     :ivar events: Events operations
     :vartype events: azure.applicationinsights.operations.EventsOperations
-    :ivar query: Query operations
-    :vartype query: azure.applicationinsights.operations.QueryOperations
 
     :param credentials: Subscription credentials which uniquely identify
      client subscription.
@@ -70,13 +70,13 @@ class ApplicationInsightsDataClient(SDKClient):
         super(ApplicationInsightsDataClient, self).__init__(self.config.credentials, self.config)
 
         client_models = {k: v for k, v in models.__dict__.items() if isinstance(v, type)}
-        self.api_version = 'v1'
+        self.api_version = '7893-32-23'
         self._serialize = Serializer(client_models)
         self._deserialize = Deserializer(client_models)
 
+        self.query = QueryOperations(
+            self._client, self.config, self._serialize, self._deserialize)
         self.metrics = MetricsOperations(
             self._client, self.config, self._serialize, self._deserialize)
         self.events = EventsOperations(
-            self._client, self.config, self._serialize, self._deserialize)
-        self.query = QueryOperations(
             self._client, self.config, self._serialize, self._deserialize)

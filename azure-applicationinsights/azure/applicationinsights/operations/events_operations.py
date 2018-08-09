@@ -34,14 +34,20 @@ class EventsOperations(object):
         self.config = config
 
     def get_by_type(
-            self, app_id, event_type, timespan=None, filter=None, search=None, orderby=None, select=None, skip=None, top=None, format=None, count=None, apply=None, custom_headers=None, raw=False, **operation_config):
+            self, subscription_id, resource_group_name, application_name, event_type, api_version, timespan=None, filter=None, search=None, orderby=None, select=None, skip=None, top=None, format=None, count=None, apply=None, custom_headers=None, raw=False, **operation_config):
         """Execute OData query.
 
         Executes an OData query for events.
 
-        :param app_id: ID of the application. This is Application ID from the
-         API Access settings blade in the Azure portal.
-        :type app_id: str
+        :param subscription_id: Gets subscription credentials which uniquely
+         identify Microsoft Azure subscription. The subscription ID forms part
+         of the URI for every service call.
+        :type subscription_id: str
+        :param resource_group_name: The name of the resource group to get. The
+         name is case insensitive.
+        :type resource_group_name: str
+        :param application_name: Name of the Application Insights application.
+        :type application_name: str
         :param event_type: The type of events to query; either a standard
          event type (`traces`, `customEvents`, `pageViews`, `requests`,
          `dependencies`, `exceptions`, `availabilityResults`) or `$all` to
@@ -50,6 +56,8 @@ class EventsOperations(object):
          'dependencies', 'exceptions', 'availabilityResults',
          'performanceCounters', 'customMetrics'
         :type event_type: str or ~azure.applicationinsights.models.EventType
+        :param api_version: Client API version.
+        :type api_version: str
         :param timespan: Optional. The timespan over which to retrieve events.
          This is an ISO8601 time period value.  This timespan is applied in
          addition to any that are specified in the Odata expression.
@@ -90,7 +98,9 @@ class EventsOperations(object):
         # Construct URL
         url = self.get_by_type.metadata['url']
         path_format_arguments = {
-            'appId': self._serialize.url("app_id", app_id, 'str'),
+            'subscriptionId': self._serialize.url("subscription_id", subscription_id, 'str'),
+            'resourceGroupName': self._serialize.url("resource_group_name", resource_group_name, 'str', max_length=90, min_length=1, pattern=r'^[-\w\._\(\)]+$'),
+            'applicationName': self._serialize.url("application_name", application_name, 'str'),
             'eventType': self._serialize.url("event_type", event_type, 'str')
         }
         url = self._client.format_url(url, **path_format_arguments)
@@ -117,6 +127,7 @@ class EventsOperations(object):
             query_parameters['$count'] = self._serialize.query("count", count, 'bool')
         if apply is not None:
             query_parameters['$apply'] = self._serialize.query("apply", apply, 'str')
+        query_parameters['apiVersion'] = self._serialize.query("api_version", api_version, 'str')
 
         # Construct headers
         header_parameters = {}
@@ -141,17 +152,23 @@ class EventsOperations(object):
             return client_raw_response
 
         return deserialized
-    get_by_type.metadata = {'url': '/apps/{appId}/events/{eventType}'}
+    get_by_type.metadata = {'url': '/subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/Microsoft.Insights/components/{applicationName}/events/{eventType}'}
 
     def get(
-            self, app_id, event_type, event_id, timespan=None, custom_headers=None, raw=False, **operation_config):
+            self, subscription_id, resource_group_name, application_name, event_type, event_id, api_version, timespan=None, custom_headers=None, raw=False, **operation_config):
         """Get an event.
 
         Gets the data for a single event.
 
-        :param app_id: ID of the application. This is Application ID from the
-         API Access settings blade in the Azure portal.
-        :type app_id: str
+        :param subscription_id: Gets subscription credentials which uniquely
+         identify Microsoft Azure subscription. The subscription ID forms part
+         of the URI for every service call.
+        :type subscription_id: str
+        :param resource_group_name: The name of the resource group to get. The
+         name is case insensitive.
+        :type resource_group_name: str
+        :param application_name: Name of the Application Insights application.
+        :type application_name: str
         :param event_type: The type of events to query; either a standard
          event type (`traces`, `customEvents`, `pageViews`, `requests`,
          `dependencies`, `exceptions`, `availabilityResults`) or `$all` to
@@ -162,6 +179,8 @@ class EventsOperations(object):
         :type event_type: str or ~azure.applicationinsights.models.EventType
         :param event_id: ID of event.
         :type event_id: str
+        :param api_version: Client API version.
+        :type api_version: str
         :param timespan: Optional. The timespan over which to retrieve events.
          This is an ISO8601 time period value.  This timespan is applied in
          addition to any that are specified in the Odata expression.
@@ -180,7 +199,9 @@ class EventsOperations(object):
         # Construct URL
         url = self.get.metadata['url']
         path_format_arguments = {
-            'appId': self._serialize.url("app_id", app_id, 'str'),
+            'subscriptionId': self._serialize.url("subscription_id", subscription_id, 'str'),
+            'resourceGroupName': self._serialize.url("resource_group_name", resource_group_name, 'str', max_length=90, min_length=1, pattern=r'^[-\w\._\(\)]+$'),
+            'applicationName': self._serialize.url("application_name", application_name, 'str'),
             'eventType': self._serialize.url("event_type", event_type, 'str'),
             'eventId': self._serialize.url("event_id", event_id, 'str')
         }
@@ -190,6 +211,7 @@ class EventsOperations(object):
         query_parameters = {}
         if timespan is not None:
             query_parameters['timespan'] = self._serialize.query("timespan", timespan, 'str')
+        query_parameters['apiVersion'] = self._serialize.query("api_version", api_version, 'str')
 
         # Construct headers
         header_parameters = {}
@@ -214,17 +236,25 @@ class EventsOperations(object):
             return client_raw_response
 
         return deserialized
-    get.metadata = {'url': '/apps/{appId}/events/{eventType}/{eventId}'}
+    get.metadata = {'url': '/subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/Microsoft.Insights/components/{applicationName}/events/{eventType}/{eventId}'}
 
     def get_odata_metadata(
-            self, app_id, custom_headers=None, raw=False, **operation_config):
+            self, subscription_id, resource_group_name, application_name, api_version, custom_headers=None, raw=False, **operation_config):
         """Get OData metadata.
 
         Gets OData EDMX metadata describing the event data model.
 
-        :param app_id: ID of the application. This is Application ID from the
-         API Access settings blade in the Azure portal.
-        :type app_id: str
+        :param subscription_id: Gets subscription credentials which uniquely
+         identify Microsoft Azure subscription. The subscription ID forms part
+         of the URI for every service call.
+        :type subscription_id: str
+        :param resource_group_name: The name of the resource group to get. The
+         name is case insensitive.
+        :type resource_group_name: str
+        :param application_name: Name of the Application Insights application.
+        :type application_name: str
+        :param api_version: Client API version.
+        :type api_version: str
         :param dict custom_headers: headers that will be added to the request
         :param bool raw: returns the direct response alongside the
          deserialized response
@@ -238,12 +268,15 @@ class EventsOperations(object):
         # Construct URL
         url = self.get_odata_metadata.metadata['url']
         path_format_arguments = {
-            'appId': self._serialize.url("app_id", app_id, 'str')
+            'subscriptionId': self._serialize.url("subscription_id", subscription_id, 'str'),
+            'resourceGroupName': self._serialize.url("resource_group_name", resource_group_name, 'str', max_length=90, min_length=1, pattern=r'^[-\w\._\(\)]+$'),
+            'applicationName': self._serialize.url("application_name", application_name, 'str')
         }
         url = self._client.format_url(url, **path_format_arguments)
 
         # Construct parameters
         query_parameters = {}
+        query_parameters['apiVersion'] = self._serialize.query("api_version", api_version, 'str')
 
         # Construct headers
         header_parameters = {}
@@ -268,4 +301,4 @@ class EventsOperations(object):
             return client_raw_response
 
         return deserialized
-    get_odata_metadata.metadata = {'url': '/apps/{appId}/events/$metadata'}
+    get_odata_metadata.metadata = {'url': '/subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/Microsoft.Insights/components/{applicationName}/events/$metadata'}
